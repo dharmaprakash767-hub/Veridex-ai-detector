@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VERIDEX AI - AI Image Forensic Detector</title>
+    <style>
+        :root {
+            --bg-color: #f7f5f0;
+            --card-bg: #ffffff;
+            --text-main: #1f2421;
+            --text-muted: #5a6560;
+            --accent-color: #0d6e6e;
+            --border-color: #e2ded4;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand-title {
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+            margin: 0;
+        }
+
+        .brand-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .tagline {
+            display: inline-block;
+            background: #e6f0ed;
+            color: var(--accent-color);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin: 10px 0;
+            line-height: 1.2;
+        }
+
+        p.description {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .upload-card {
+            background: var(--card-bg);
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 30px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            margin-bottom: 30px;
+        }
+
+        .btn-upload {
+            background: var(--accent-color);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-block;
+            transition: background 0.2s;
+        }
+
+        .btn-upload:hover {
+            background: #095252;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div>
+            <h2 class="brand-title">VERIDEX AI</h2>
+            <div class="brand-sub">Built by Dharma Prakash</div>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--accent-color); font-weight: 600;">
+            ● DESK ONLINE
+        </div>
+    </div>
+
+    <div class="container">
+        <span class="tagline">● A QUIET SECOND OPINION</span>
+        <h1>Look closer.<br>Know more.</h1>
+        <p class="description">
+            Veridex helps you understand whether an image may have been made with AI — with a clear signal, useful context, and no theatrics.
+        </p>
+
+        <div class="upload-card">
+            <h3 style="margin-top:0;">Bring an image to the desk</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                We'll look for patterns, artifacts, and signals that help you understand where it came from.
+            </p>
+            <form id="uploadForm">
+                <label class="btn-upload" for="imageInput">Choose image</label>
+                <input type="file" id="imageInput" accept="image/*" required onchange="uploadImage()">
+            </form>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        async function uploadImage() {
+            const input = document.getElementById('imageInput');
+            const resultDiv = document.getElementById('result');
+
+            if (!input.files || input.files.length === 0) return;
+
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+
+            resultDiv.innerText = "Analyzing image...";
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (data.ai_score !== undefined) {
+                    resultDiv.innerText = `AI Probability: ${(data.ai_score * 100).toFixed(1)}%`;
+                } else {
+                    resultDiv.innerText = data.message || "Analysis complete.";
+                }
+            } catch (err) {
+                resultDiv.innerText = "Error analyzing image. Please try again.";
+            }
+        }
+    </script>
+</body>
+  </html>
+  
